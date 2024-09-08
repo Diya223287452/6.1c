@@ -6,8 +6,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the project...'
-                // Here you would typically run build commands (e.g., Maven or Gradle)
-                // sh 'mvn clean package' 
+                // Run build commands (e.g., Maven or Gradle)
+                // sh 'mvn clean package'
             }
         }
 
@@ -15,7 +15,7 @@ pipeline {
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Running Unit and Integration Tests...'
-                // Here you would run your unit and integration tests (e.g., JUnit, TestNG)
+                // Run your unit and integration tests (e.g., JUnit, TestNG)
                 // sh 'mvn test'
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Running Code Analysis...'
-                // Add commands to analyze code with a tool like SonarQube
+                // Analyze code with a tool like SonarQube
                 // e.g., sh 'sonar-scanner'
             }
         }
@@ -63,15 +63,35 @@ pipeline {
         }
     }
 
-    // Post actions (Optional: Notification if the pipeline succeeds or fails)
     post {
+        always {
+            script {
+                // Save the log file to a workspace directory
+                def logFile = "${env.WORKSPACE}/build-log.txt"
+                writeFile file: logFile, text: currentBuild.rawBuild.getLog(1000).join('\n')
+            }
+        }
         success {
             echo 'Pipeline completed successfully!'
-            // You can also send a success email notification here
+            // Send success email notification with the log attached
+            emailext(
+                subject: 'Build Success: Jenkins Pipeline',
+                body: 'The Jenkins pipeline has completed successfully. Please find the attached build log.',
+                attachLog: true,
+                attachmentsPattern: 'build-log.txt',
+                to: 'diyakundu29@example.com'
+            )
         }
         failure {
             echo 'Pipeline failed.'
-            // Send failure notification
+            // Send failure email notification with the log attached
+            emailext(
+                subject: 'Build Failure: Jenkins Pipeline',
+                body: 'The Jenkins pipeline has failed. Please find the attached build log.',
+                attachLog: true,
+                attachmentsPattern: 'build-log.txt',
+                to: 'diyakundu29@gmail.com'
+            )
         }
     }
 }
