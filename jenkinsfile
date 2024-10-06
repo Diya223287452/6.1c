@@ -6,8 +6,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the project...'
-                // Run build commands (e.g., Maven or Gradle)
-                // sh 'mvn clean package'
+                 echo 'Details: The code is being built using an automation tool that compiles and packages the application.'
+                echo 'Automation Tool: Maven is being utilized for automating the build process.'
             }
         }
 
@@ -15,17 +15,36 @@ pipeline {
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Running Unit and Integration Tests...'
-                // Run your unit and integration tests (e.g., JUnit, TestNG)
-                // sh 'mvn test'
+                echo 'Details: Executing unit tests to verify functionality and integration tests to ensure that all components work together as intended.'
+                echo 'Testing Framework: JUnit 5 is used for performing unit tests.'
             }
         }
 
+ post {
+                success {
+                    emailext(
+                        attachLog: true,
+                        to: 'diyakundu29@gmail.com',
+                        subject: 'Unit and Integration Tests: Success',
+                        body: 'Stage 2 has successfully passed. Please refer to the attached logs for more information.'
+                    )
+                }
+                failure {
+                    emailext(
+                        attachLog: true,
+                        to: 'diyakundu29@gmail.com',
+                        subject: 'Unit and Integration Tests: Failure',
+                        body: 'Stage 2 failed. Please check the attached logs for further details.'
+                    )
+                }
+            }
+        }
         // Stage 3: Code Analysis
         stage('Code Analysis') {
             steps {
                 echo 'Running Code Analysis...'
-                // Analyze code with a tool like SonarQube
-                // e.g., sh 'sonar-scanner'
+                echo 'Details: Performing a code analysis to ensure it adheres to industry standards and best practices.'
+                echo 'Analysis Tool: SonarQube is employed for static code analysis.'
             }
         }
 
@@ -33,26 +52,45 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Running Security Scan...'
-                // Commands for security scanning (e.g., OWASP ZAP or SonarQube Security Plugin)
+                echo 'Details: Conducting a security scan to identify potential vulnerabilities in the application.'
+                echo 'Security Tool: OWASP Dependency-Check is utilized for scanning vulnerabilities.'
             }
         }
-
+         post {
+                success {
+                    emailext (
+                        attachLog: true,
+                        to: 'missoceanocean18@gmail.com',
+                        subject: 'Security Scan: Successful',
+                        body: 'Stage 4 completed successfully. Logs are attached for reference.'
+                    )
+                }
+                failure {
+                    emailext(
+                        attachLog: true,
+                        to: 'missoceanocean18@gmail.com',
+                        subject: 'Security Scan: Failed',
+                        body: 'Stage 4 encountered a failure. Logs are attached for review.'
+                    )
+                }
+            }
         // Stage 5: Deploy to Staging
         stage('Deploy to Staging') {
             steps {
                 echo 'Deploying to Staging...'
-                // Deployment to staging (e.g., AWS EC2, Heroku)
-                // e.g., sh 'aws deploy command' or 'heroku deploy command'
+                  echo 'Details: Deploying the application to the staging environment, simulating a production-like AWS EC2 instance.'
             }
-        }
+            }
+    
 
         // Stage 6: Integration Tests on Staging
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Running Integration Tests on Staging...'
-                // Commands to run integration tests on the staging environment
+                echo 'Details: Running integration tests in the staging environment to ensure the application behaves as expected in a production-simulated environment.'
             }
-        }
+            }
+        
 
         // Stage 7: Deploy to Production
         stage('Deploy to Production') {
