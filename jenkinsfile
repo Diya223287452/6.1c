@@ -1,135 +1,83 @@
 pipeline {
-    agent any // This means the pipeline can run on any available agent
-
+    agent any
+    
     stages {
-        // Stage 1: Build
+        stage('Initialize') {
+            steps {
+                script {
+                    try {
+                        echo "Starting pipeline"
+                        // Add any initialization logic here
+                    } catch (Exception e) {
+                        echo "Error in Initialize stage: ${e.message}"
+                        error("Failed during Initialize stage")
+                    }
+                }
+            }
+        }
+        
         stage('Build') {
             steps {
-                echo 'Building the project...'
-                 echo 'Details: The code is being built using an automation tool that compiles and packages the application.'
-                echo 'Automation Tool: Maven is being utilized for automating the build process.'
-            }
-        }
-
-        // Stage 2: Unit and Integration Tests
-        stage('Unit and Integration Tests') {
-            steps {
-                echo 'Running Unit and Integration Tests...'
-                echo 'Details: Executing unit tests to verify functionality and integration tests to ensure that all components work together as intended.'
-                echo 'Testing Framework: JUnit 5 is used for performing unit tests.'
-            }
-        }
-
- post {
-                success {
-                    emailext(
-                        attachLog: true,
-                        to: 'diyakundu29@gmail.com',
-                        subject: 'Unit and Integration Tests: Success',
-                        body: 'Stage 2 has successfully passed. Please refer to the attached logs for more information.'
-                    )
-                }
-                failure {
-                    emailext(
-                        attachLog: true,
-                        to: 'diyakundu29@gmail.com',
-                        subject: 'Unit and Integration Tests: Failure',
-                        body: 'Stage 2 failed. Please check the attached logs for further details.'
-                    )
+                script {
+                    try {
+                        echo "Running build..."
+                        // Example of your build logic
+                        // sh 'make build' (or any build steps you have)
+                    } catch (Exception e) {
+                        echo "Error in Build stage: ${e.message}"
+                        error("Failed during Build stage")
+                    }
                 }
             }
         }
-        // Stage 3: Code Analysis
-        stage('Code Analysis') {
-            steps {
-                echo 'Running Code Analysis...'
-                echo 'Details: Performing a code analysis to ensure it adheres to industry standards and best practices.'
-                echo 'Analysis Tool: SonarQube is employed for static code analysis.'
-            }
-        }
-
-        // Stage 4: Security Scan
-        stage('Security Scan') {
-            steps {
-                echo 'Running Security Scan...'
-                echo 'Details: Conducting a security scan to identify potential vulnerabilities in the application.'
-                echo 'Security Tool: OWASP Dependency-Check is utilized for scanning vulnerabilities.'
-            }
-        }
-         post {
-                success {
-                    emailext (
-                        attachLog: true,
-                        to: 'missoceanocean18@gmail.com',
-                        subject: 'Security Scan: Successful',
-                        body: 'Stage 4 completed successfully. Logs are attached for reference.'
-                    )
-                }
-                failure {
-                    emailext(
-                        attachLog: true,
-                        to: 'missoceanocean18@gmail.com',
-                        subject: 'Security Scan: Failed',
-                        body: 'Stage 4 encountered a failure. Logs are attached for review.'
-                    )
-                }
-            }
-        // Stage 5: Deploy to Staging
-        stage('Deploy to Staging') {
-            steps {
-                echo 'Deploying to Staging...'
-                  echo 'Details: Deploying the application to the staging environment, simulating a production-like AWS EC2 instance.'
-            }
-            }
-    
-
-        // Stage 6: Integration Tests on Staging
-        stage('Integration Tests on Staging') {
-            steps {
-                echo 'Running Integration Tests on Staging...'
-                echo 'Details: Running integration tests in the staging environment to ensure the application behaves as expected in a production-simulated environment.'
-            }
-            }
         
-
-        // Stage 7: Deploy to Production
-        stage('Deploy to Production') {
+        stage('Test') {
             steps {
-                echo 'Deploying to Production...'
-                // Commands to deploy the application to production (e.g., AWS CLI, Docker)
+                script {
+                    try {
+                        echo "Running tests..."
+                        // Example of your test logic
+                        // sh 'make test' (or any testing steps)
+                    } catch (Exception e) {
+                        echo "Error in Test stage: ${e.message}"
+                        error("Failed during Test stage")
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    try {
+                        echo "Deploying application..."
+                        // Example of your deployment logic
+                        // sh 'make deploy' (or any deploy steps)
+                    } catch (Exception e) {
+                        echo "Error in Deploy stage: ${e.message}"
+                        error("Failed during Deploy stage")
+                    }
+                }
             }
         }
     }
-
+    
     post {
         always {
             script {
-                // Save the log file to a workspace directory
-                def logFile = "${env.WORKSPACE}/build-log.txt"
-                writeFile file: logFile, text: currentBuild.rawBuild.getLog(1000).join('\n')
+                try {
+                    echo "Cleaning up resources..."
+                    // Add any cleanup logic here
+                } catch (Exception e) {
+                    echo "Error during cleanup: ${e.message}"
+                }
             }
         }
         success {
             echo 'Pipeline completed successfully!'
-            // Send success email notification with the log attached
-            emailext(
-                subject: 'Build Success: Jenkins Pipeline',
-                body: 'The Jenkins pipeline has completed successfully. Please find the attached build log.',
-                attachLog: true,
-                attachmentsPattern: 'build-log.txt',
-                to: 'diyakundu29@example.com'
-            )
         }
         failure {
-            echo 'Pipeline failed.'
-            // Send failure email notification with the log attached
-            emailext(
-                subject: 'Build Failure: Jenkins Pipeline',
-                body: 'The Jenkins pipeline has failed. Please find the attached build log.',
-                attachLog: true,
-                attachmentsPattern: 'build-log.txt',
-                to: 'diyakundu29@gmail.com'
-            )
+            echo 'Pipeline failed!'
         }
     }
 }
